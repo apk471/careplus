@@ -9,13 +9,13 @@ interface ButtonProps {
 
 const SubmitButton = ({ isLoading, className, children }: ButtonProps) => {
   return (
-    <div>
+
       <Button type="submit" className={className ?? "shad-primary-btn w-full"} disabled={isLoading}>
 
         {isLoading ? (
             <div className="flex items-center gap-4">
                 <Image 
-                src="/assets/icons/loading.svg"
+                src="/assets/icons/loader.svg"
                 alt="loading"
                 height={24}
                 width={24}
@@ -25,10 +25,10 @@ const SubmitButton = ({ isLoading, className, children }: ButtonProps) => {
                 Loading ....
 
             </div>
-        ) : children}
+        ) : (children)}
 
       </Button>
-    </div>
+
   );
 };
 
