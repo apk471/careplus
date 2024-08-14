@@ -1,113 +1,106 @@
-"use client"
-import React, { useState } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+"use client";
+import React, { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-
-import {
-  Form
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import CustomFormFeild from "../CustomFormFeild"
-import SubmitButton from "../SubmitButton"
-import { UserFormValidation } from "@/lib/validation"
-import { useRouter } from "next/navigation"
-import { createUser } from "@/lib/actions/patient.actions"
+import { Form } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import CustomFormFeild from "../CustomFormFeild";
+import SubmitButton from "../SubmitButton";
+import { UserFormValidation } from "@/lib/validation";
+import { useRouter } from "next/navigation";
+import { createUser } from "@/lib/actions/patient.actions";
 
 export enum FormFieldTypes {
-    INPUT = 'input',
-    TEXTAREA = 'textarea',
-    SELECT = 'select',
-    CHECKBOX = 'checkbox',
-    RADIO = 'radio',
-    DATE_PICKER = 'datePicker',
-    TIME = 'time',
-    PHONE_INPUT = 'phoneInput',
-    SKELETON = 'skeleton',
-
+  INPUT = "input",
+  TEXTAREA = "textarea",
+  SELECT = "select",
+  CHECKBOX = "checkbox",
+  RADIO = "radio",
+  DATE_PICKER = "datePicker",
+  TIME = "time",
+  PHONE_INPUT = "phoneInput",
+  SKELETON = "skeleton",
 }
- 
 
- 
-const  PatientForm = () => {
+const PatientForm = () => {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
   // 1. Define your form.
   const form = useForm<z.infer<typeof UserFormValidation>>({
     resolver: zodResolver(UserFormValidation),
     defaultValues: {
       name: "",
       email: "",
-      phone: ""
+      phone: "",
     },
-  })
- 
+  });
+
   // 2. Define a submit handler.
-  async function onSubmit({name , email , phone}: z.infer<typeof UserFormValidation>) {
+  async function onSubmit({
+    name,
+    email,
+    phone,
+  }: z.infer<typeof UserFormValidation>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-      const userData = {name , email , phone}
+      const userData = { name, email, phone };
 
+      const user = await createUser(userData);
 
+      console.log({ user });
 
-      const user = await createUser(userData)
-
-      console.log({user})
-
-      if(user){
-        router.push(`/patients/${user.$id}/register`)
+      if (user) {
+        router.push(`/patients/${user.$id}/register`);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
 
-    // setIsLoading(false)
+    setIsLoading(false);
   }
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
         <section className="mb-12 space-y-4">
-            <h1 className="header">Hi there 👋</h1>
-            <p className="text-dark-700">Sechudle your first appointment</p>
+          <h1 className="header">Hi there 👋</h1>
+          <p className="text-dark-700">Sechudle your first appointment</p>
         </section>
-        <CustomFormFeild 
-        fieldType = {FormFieldTypes.INPUT}
-        name="name"
-        label="Full Name"
-        placeholder="John Doe"
-        iconSrc = "/assets/icons/user.svg"
-        iconAlt = "user"
-        control={form.control} 
+        <CustomFormFeild
+          fieldType={FormFieldTypes.INPUT}
+          name="name"
+          label="Full Name"
+          placeholder="John Doe"
+          iconSrc="/assets/icons/user.svg"
+          iconAlt="user"
+          control={form.control}
         />
-        <CustomFormFeild 
-        fieldType = {FormFieldTypes.INPUT}
-        name="email"
-        label="Email"
-        placeholder="ayushnamin@gmail.com"
-        iconSrc = "/assets/icons/email.svg"
-        iconAlt = "email"
-        control={form.control} 
+        <CustomFormFeild
+          fieldType={FormFieldTypes.INPUT}
+          name="email"
+          label="Email"
+          placeholder="ayushnamin@gmail.com"
+          iconSrc="/assets/icons/email.svg"
+          iconAlt="email"
+          control={form.control}
         />
-        <CustomFormFeild 
-        fieldType = {FormFieldTypes.PHONE_INPUT}
-        name="phone"
-        label="Phone Number"
-        placeholder="(+91) 1234567890"
-        iconSrc = "/assets/icons/email.svg"
-        iconAlt = "email"
-        control={form.control} 
+        <CustomFormFeild
+          fieldType={FormFieldTypes.PHONE_INPUT}
+          name="phone"
+          label="Phone Number"
+          placeholder="(+91) 1234567890"
+          iconSrc="/assets/icons/email.svg"
+          iconAlt="email"
+          control={form.control}
         />
-        <SubmitButton isLoading={isLoading}>
-
-          Get Started
-        </SubmitButton>
+        <SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
       </form>
     </Form>
-  )
-}
+  );
+};
 
-export default PatientForm
+export default PatientForm;
