@@ -13,9 +13,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Control, Field } from "react-hook-form";
 import { FormFieldTypes } from "./forms/PatientForm";
-import 'react-phone-number-input/style.css'
-import PhoneInput from 'react-phone-number-input'
+import "react-phone-number-input/style.css";
+import PhoneInput from "react-phone-number-input";
 import Image from "next/image";
+
+import DatePicker from "react-datepicker";
+
+import "react-datepicker/dist/react-datepicker.css";
 
 interface CustomProps {
   control: Control<any>;
@@ -32,47 +36,81 @@ interface CustomProps {
   renderSkeleton?: (feild: any) => React.ReactNode;
 }
 
-const RenderField = ({field , props} : {field: any ; props: CustomProps}) => {
-  const { fieldType , iconSrc , iconAlt , placeholder } = props;
+const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
+  const {
+    fieldType,
+    iconSrc,
+    iconAlt,
+    placeholder,
+    showTimeSelect,
+    dateFormat,
+    renderSkeleton,
+  } = props;
   switch (fieldType) {
     case FormFieldTypes.INPUT:
-      return(
+      return (
         <div className="flex rounded-md border border-dark-500 bg-dark-400">
           {props.iconSrc && (
-            <Image src={iconSrc || ""} alt={iconAlt || 'icon'} height={24} width={24}  className="ml-2"/>
+            <Image
+              src={iconSrc || ""}
+              alt={iconAlt || "icon"}
+              height={24}
+              width={24}
+              className="ml-2"
+            />
           )}
 
           <FormControl>
             <Input
-            placeholder={placeholder}
-            {...field}
-            className="shad-input border-0"
+              placeholder={placeholder}
+              {...field}
+              className="shad-input border-0"
             />
-
           </FormControl>
         </div>
-      )
-      
+      );
+
       break;
-  
+
     case FormFieldTypes.PHONE_INPUT:
-      return(
+      return (
         <FormControl>
-
-          <PhoneInput 
-          
-          defaultCountry="US"
-          placeholder={placeholder}
-          international
-          withCountryCallingCode
-          value={field.value} 
-          onChange={field.onChange}
-          className="input-phone"
-
-          
+          <PhoneInput
+            defaultCountry="US"
+            placeholder={placeholder}
+            international
+            withCountryCallingCode
+            value={field.value}
+            onChange={field.onChange}
+            className="input-phone"
           />
         </FormControl>
-      )
+      );
+    case FormFieldTypes.DATE_PICKER:
+      return (
+        <div className="flex rounded-md border border-dark-500 bg-dark-400">
+          <Image
+            src="/assets/icons/calendar.svg"
+            alt="calendar"
+            height={24}
+            width={24}
+            className="ml-2"
+          />
+          <FormControl>
+            <DatePicker
+              selected={field.value}
+              onChange={(date) => field.onChange(date)}
+              dateFormat={dateFormat ?? "MM/dd/yyyy"}
+              showTimeSelect={showTimeSelect ?? false}
+              timeInputLabel="Time:"
+              wrapperClassName="date-picker"
+            />
+          </FormControl>
+        </div>
+      );
+
+    case FormFieldTypes.SKELETON:
+      return renderSkeleton ? renderSkeleton(field) : null;
     default:
       break;
   }
