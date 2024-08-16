@@ -20,6 +20,8 @@ import Image from "next/image";
 import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
+import { Select, SelectContent, SelectTrigger, SelectValue } from "./ui/select";
+import { Textarea } from "./ui/textarea";
 
 interface CustomProps {
   control: Control<any>;
@@ -109,14 +111,43 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
         </div>
       );
 
+    case FormFieldTypes.TEXTAREA:
+      return (
+        <FormControl>
+          <Textarea
+            placeholder={placeholder}
+            {...field}
+            className="shad-textarea"
+            disabled={props.disabled}
+          />
+        </FormControl>
+      );
+
+    case FormFieldTypes.SELECT:
+      return (
+        <FormControl>
+          <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <FormControl>
+              <SelectTrigger className="shad-select-trigger">
+                <SelectValue placeholder={props.placeholder} />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent className="shad-select-content">
+              {props.children}
+            </SelectContent>
+          </Select>
+        </FormControl>
+      );
+
     case FormFieldTypes.SKELETON:
       return renderSkeleton ? renderSkeleton(field) : null;
+
     default:
       break;
   }
 };
 
-const CustomFormFeild = (props: CustomProps) => {
+const CustomFormField = (props: CustomProps) => {
   const { control, fieldType, name, label } = props;
   return (
     <div>
@@ -139,4 +170,4 @@ const CustomFormFeild = (props: CustomProps) => {
   );
 };
 
-export default CustomFormFeild;
+export default CustomFormField;
