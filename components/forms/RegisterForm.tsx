@@ -8,14 +8,20 @@ import { Form, FormControl } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import CustomFormField from "../CustomFormFeild";
 import SubmitButton from "../SubmitButton";
-import { UserFormValidation } from "@/lib/validation";
+import { PatientFormValidation, UserFormValidation } from "@/lib/validation";
 import { useRouter } from "next/navigation";
-import { createUser } from "@/lib/actions/patient.actions";
+import { createUser, registerPatient } from "@/lib/actions/patient.actions";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { Doctors, GenderOptions } from "@/constants";
+import {
+  Doctors,
+  GenderOptions,
+  IdentificationTypes,
+  PatientFormDefaultValues,
+} from "@/constants";
 import { Label } from "../ui/label";
 import { SelectItem } from "../ui/select";
 import Image from "next/image";
+import FileUploader from "../FileUploader";
 
 export enum FormFieldTypes {
   INPUT = "input",
@@ -33,9 +39,10 @@ const RegisterForm = ({ user }: { user: User }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   // 1. Define your form.
-  const form = useForm<z.infer<typeof UserFormValidation>>({
-    resolver: zodResolver(UserFormValidation),
+  const form = useForm<z.infer<typeof PatientFormValidation>>({
+    resolver: zodResolver(PatientFormValidation),
     defaultValues: {
+      ...PatientFormDefaultValues,
       name: "",
       email: "",
       phone: "",
@@ -43,24 +50,37 @@ const RegisterForm = ({ user }: { user: User }) => {
   });
 
   // 2. Define a submit handler.
-  async function onSubmit({
-    name,
-    email,
-    phone,
-  }: z.infer<typeof UserFormValidation>) {
+  async function onSubmit(values: z.infer<typeof PatientFormValidation>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     setIsLoading(true);
+    let formData;
+
+    if (
+      values.identificationDocument &&
+      values.identificationDocument.length > 0
+    ) {
+      const blobFile = new Blob([values.identificationDocument[0]], {
+        type: values.identificationDocument[0].type,
+      });
+
+      formData = new FormData();
+      formData.append("blobFile", blobFile);
+      formData.append("fileName", values.identificationDocument[0].name);
+    }
 
     try {
-      const userData = { name, email, phone };
+      const patientData = {
+        ...values,
+        userId: user.$id,
+        birthDate: new Date(values.birthDate),
+        identificationDocument: formData,
+      };
 
-      const user = await createUser(userData);
+      const patient = await registerPatient(patientData);
 
-      console.log({ user });
-
-      if (user) {
-        router.push(`/patients/${user.$id}/register`);
+      if (patient) {
+        router.push(`/patients/${user.$id}/register/new-appointment`);
       }
     } catch (error) {
       console.log(error);
@@ -101,7 +121,7 @@ const RegisterForm = ({ user }: { user: User }) => {
               control={form.control}
               name="email"
               label="Email address"
-              placeholder="johndoe@gmail.com"
+              placeholder="ayushnamin@gmail.com"
               iconSrc="/assets/icons/email.svg"
               iconAlt="email"
             />
@@ -285,11 +305,11 @@ const RegisterForm = ({ user }: { user: User }) => {
             name="identificationType"
             label="Identification Type"
             placeholder="Select identification type">
-            {/* {IdentificationTypes.map((type, i) => (
+            {IdentificationTypes.map((type, i) => (
               <SelectItem key={type + i} value={type}>
                 {type}
               </SelectItem>
-            ))} */}
+            ))}
           </CustomFormField>
 
           <CustomFormField
@@ -307,7 +327,7 @@ const RegisterForm = ({ user }: { user: User }) => {
             label="Scanned Copy of Identification Document"
             renderSkeleton={(field) => (
               <FormControl>
-                {/* <FileUploader files={field.value} onChange={field.onChange} /> */}
+                <FileUploader files={field.value} onChange={field.onChange} />
               </FormControl>
             )}
           />

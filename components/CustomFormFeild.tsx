@@ -8,8 +8,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "./ui/form";
+import { Input } from "./ui/input";
 import { Button } from "@/components/ui/button";
 import { Control, Field } from "react-hook-form";
 import { FormFieldTypes } from "./forms/PatientForm";
@@ -22,6 +22,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Select, SelectContent, SelectTrigger, SelectValue } from "./ui/select";
 import { Textarea } from "./ui/textarea";
+import { Checkbox } from "./ui/checkbox";
 
 interface CustomProps {
   control: Control<any>;
@@ -54,17 +55,16 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
         <div className="flex rounded-md border border-dark-500 bg-dark-400">
           {props.iconSrc && (
             <Image
-              src={iconSrc || ""}
-              alt={iconAlt || "icon"}
+              src={props.iconSrc}
               height={24}
               width={24}
+              alt={props.iconAlt || "icon"}
               className="ml-2"
             />
           )}
-
           <FormControl>
             <Input
-              placeholder={placeholder}
+              placeholder={props.placeholder}
               {...field}
               className="shad-input border-0"
             />
@@ -117,7 +117,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
           <Textarea
             placeholder={placeholder}
             {...field}
-            className="shad-textarea"
+            className="shad-textArea"
             disabled={props.disabled}
           />
         </FormControl>
@@ -139,6 +139,22 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
         </FormControl>
       );
 
+    case FormFieldTypes.CHECKBOX:
+      return (
+        <FormControl>
+          <div className="flex items-center gap-4">
+            <Checkbox
+              id={props.name}
+              checked={field.value}
+              onCheckedChange={field.onChange}
+            />
+            <label htmlFor={props.name} className="checkbox-label">
+              {props.label}
+            </label>
+          </div>
+        </FormControl>
+      );
+
     case FormFieldTypes.SKELETON:
       return renderSkeleton ? renderSkeleton(field) : null;
 
@@ -148,7 +164,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 };
 
 const CustomFormField = (props: CustomProps) => {
-  const { control, fieldType, name, label } = props;
+  const { control, name, label } = props;
   return (
     <div>
       <FormField
@@ -156,8 +172,8 @@ const CustomFormField = (props: CustomProps) => {
         name={name}
         render={({ field }) => (
           <FormItem className="flex-1">
-            {fieldType !== FormFieldTypes.CHECKBOX && label && (
-              <FormLabel>{label}</FormLabel>
+            {props.fieldType !== FormFieldTypes.CHECKBOX && label && (
+              <FormLabel className="shad-input-label">{label}</FormLabel>
             )}
 
             <RenderField field={field} props={props} />
